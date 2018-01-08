@@ -2,12 +2,12 @@
 <body>
 <script>
 (function(){
-	var parse = function(pattern){
-		var match, currentPart = "", parts = [], level = 0, rgx = /[^{}]+|[{}]/g;
+	var split = function*(pattern){
+		var match, currentPart = "", level = 0, rgx = /[^{}]+|[{}]/g;
 		while((match = rgx.exec(pattern)) && (match = match[0])){
 			if(match == "{"){
 				if(currentPart && level == 0){
-					parts.push(currentPart);
+					yield currentPart;
 					currentPart = "";
 				}
 				currentPart += match;
@@ -16,7 +16,7 @@
 				currentPart += match;
 				level--;
 				if(level == 0){
-					parts.push(currentPart);
+					yield currentPart;
 					currentPart = "";
 				}
 			}else{
@@ -24,11 +24,26 @@
 			}
 		}
 		if(currentPart){
-			parts.push(currentPart);
+			yield currentPart;
 		}
-		return parts;
 	};
-	console.log(parse("dat is {,ook} {wel,niet{, erg}} leuk"));
+	var product = function(...iterable1){
+		return function*(...iterable2){
+			for(let one of iterable1){
+				for(let two of iterable2){
+					yield (function*(){
+						yield one;
+						yield two;
+					})();
+				}
+			}
+		};
+	};
+	var productOfMany = function(...iterables){
+		
+	};
+	console.log([...product(product(1,2)(3,4))(5,6)]);
+	console.log([...split("dat is {,ook} {wel,niet{, erg}} leuk")]);
 })();
 </script>
 </body>

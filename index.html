@@ -1,0 +1,35 @@
+<html>
+<body>
+<script>
+(function(){
+	var parse = function(pattern){
+		var match, currentPart = "", parts = [], level = 0, rgx = /[^{}]+|[{}]/g;
+		while((match = rgx.exec(pattern)) && (match = match[0])){
+			if(match == "{"){
+				if(currentPart && level == 0){
+					parts.push(currentPart);
+					currentPart = "";
+				}
+				currentPart += match;
+				level++;
+			}else if(match == "}"){
+				currentPart += match;
+				level--;
+				if(level == 0){
+					parts.push(currentPart);
+					currentPart = "";
+				}
+			}else{
+				currentPart += match;
+			}
+		}
+		if(currentPart){
+			parts.push(currentPart);
+		}
+		return parts;
+	};
+	console.log(parse("dat is {,ook} {wel,niet{, erg}} leuk"));
+})();
+</script>
+</body>
+</html>

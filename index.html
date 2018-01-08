@@ -27,12 +27,15 @@
 			yield currentPart;
 		}
 	};
-	var product = function(...iterable1){
-		return function*(...iterable2){
-			for(let one of iterable1){
-				for(let two of iterable2){
+	var product = function(...iterables){
+		return function*(...things){
+			for(let one of iterables){
+				one = [...one];
+				for(let two of things){
 					yield (function*(){
-						yield one;
+						for(let ofOne of one){
+							yield ofOne;
+						}
 						yield two;
 					})();
 				}
@@ -40,10 +43,42 @@
 		};
 	};
 	var productOfMany = function(...iterables){
-		
+		var result, first = true;
+		for(let it of iterables){
+			if(first){
+				result = (function*(){for(let ofIt of it){yield [ofIt];}})();
+				first = false;
+			}else{
+				result = product(...result)(...it);
+			}
+		}
+		return result;
 	};
-	console.log([...product(product(1,2)(3,4))(5,6)]);
-	console.log([...split("dat is {,ook} {wel,niet{, erg}} leuk")]);
+	var splitOnCommas = function(list){
+		var segments = [], parts = split(list);
+		for(let part of parts){
+			if(part.match(/^[^{}]+$/)){
+				segments = segments.concat(part.split(","));
+			}else{
+				segments.push((segments.pop() || "") + part);
+			}
+		}
+		return segments;
+	};
+	var possibilities = function*(pattern){
+		var parts = split(pattern);
+		for(let part of parts){
+			if(part.match(/^[^{}]+$/)){
+				yield [part];
+			}else{
+				//yield getList(part.substr(1,part.length - 2));
+			}
+		}
+	};
+	console.log(splitOnCommas("een,twee{drie,vier}vijf"));
+	//console.log([...possibilities("dat is {,ook} {wel,niet{, erg}} leuk")]);
+	//console.log([...productOfMany(["dat is "],["","ook"],[" "],["wel","niet","niet erg"],[" leuk"])].map(function(x){return [...x].join("");}));
+	//console.log([...split("dat is {,ook} {wel,niet{, erg}} leuk")]);
 })();
 </script>
 </body>

@@ -54,31 +54,53 @@
 		}
 		return result;
 	};
-	var splitOnCommas = function(list){
-		var segments = [], parts = split(list);
-		for(let part of parts){
+	var splitOnCommas = function*(list){
+		var current = "", parts = split(list);
+		for(var part of parts){
 			if(part.match(/^[^{}]+$/)){
-				segments = segments.concat(part.split(","));
+				var subParts = part.match(/[^,]+|,/g);
+				for(var subPart of subParts){
+					if(subPart == ","){
+						yield current;
+						current = "";
+					}else{
+						current += subPart;
+					}
+				}
 			}else{
-				segments.push((segments.pop() || "") + part);
+				current += part;
 			}
 		}
-		return segments;
+		yield current;
+	};
+	var getList = function*(partWithinBraces){
+		var parts = splitOnCommas(partWithinBraces);
+		for(let part of parts){
+			if(part.match(/^[^{}]*$/)){
+				yield part;
+			}else{
+				var expanded = expand(part);
+				for(let subPart of expanded){
+					yield subPart;
+				}
+			}
+		}
 	};
 	var possibilities = function*(pattern){
 		var parts = split(pattern);
 		for(let part of parts){
-			if(part.match(/^[^{}]+$/)){
+			if(part.match(/^[^{}]*$/)){
 				yield [part];
 			}else{
-				//yield getList(part.substr(1,part.length - 2));
+				yield getList(part.substr(1,part.length - 2));
 			}
 		}
 	};
-	console.log(splitOnCommas("een,twee{drie,vier}vijf"));
-	//console.log([...possibilities("dat is {,ook} {wel,niet{, erg}} leuk")]);
-	//console.log([...productOfMany(["dat is "],["","ook"],[" "],["wel","niet","niet erg"],[" leuk"])].map(function(x){return [...x].join("");}));
-	//console.log([...split("dat is {,ook} {wel,niet{, erg}} leuk")]);
+	var expand = function(pattern){
+		return [...productOfMany(...possibilities(pattern))].map(function(x){return [...x].join("");});
+	};
+	console.log(expand("dat is{, ook} {wel,niet{, erg}} leuk"));
+	
 })();
 </script>
 </body>

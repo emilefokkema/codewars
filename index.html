@@ -2,6 +2,7 @@
 <body>
 <script>
 (function(){
+	//---------- https://www.codewars.com/kata/brace-expansion ---------------
 	var split = function*(pattern){
 		var match, currentPart = "", level = 0, rgx = /[^{}]+|[{}]/g;
 		while((match = rgx.exec(pattern)) && (match = match[0])){
@@ -99,8 +100,33 @@
 	var expand = function(pattern){
 		return [...productOfMany(...possibilities(pattern))].map(function(x){return [...x].join("");});
 	};
-	console.log(expand("dat is{, ook} {wel,niet{, erg}} leuk"));
+	//console.log(expand("~/{Downloads,Pictures}/*.{jpg,gif,png}"));
 	
+	//---------- https://www.codewars.com/kata/number-of-proper-fractions-with-denominator-d ---------------
+
+	var factors = function*(n){
+		var left = n, current = 2;
+		while(left > 1 && current < n){
+			if(left % current == 0){
+				yield current;
+				left = left / current;
+			}else{
+				current++;
+			}
+		}
+	}
+	var distinct = function*(numbers){
+		var previous, current;
+		for(current of numbers){
+			if(current != previous){
+				previous = current;
+				yield current;
+			}
+		}
+	};
+	var calculation = function(n){
+
+	};
 })();
 </script>
 </body>

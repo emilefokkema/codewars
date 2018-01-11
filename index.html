@@ -1,5 +1,6 @@
 <html>
 <body>
+	<script src="test.js"></script>
 <script>
 (function(){
 	//---------- https://www.codewars.com/kata/brace-expansion ---------------
@@ -124,9 +125,22 @@
 			}
 		}
 	};
-	var calculation = function(n){
+	var properFractions = function(n){
+		// var foundFactors = [], result = n;
+		// for(var factor of distinct(factors(n))){
+		// 	var toSubtract = ;
 
+		// 	foundFactors.push(factor);
+		// 	result -= toSubtract;
+		// }
+		// return result;
 	};
+	Test.assertEquals(properFractions(1),0);
+	Test.assertEquals(properFractions(2),1);
+	Test.assertEquals(properFractions(5),4);
+	Test.assertEquals(properFractions(15),8);
+	Test.assertEquals(properFractions(25),20);
+	Test.assertEquals(properFractions(30),8);
 })();
 </script>
 </body>

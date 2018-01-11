@@ -125,15 +125,21 @@
 			}
 		}
 	};
+	
+	var properFractionsLimited = function(n, limit){
+		var highestFactor = 0, result = n, foundFactor = false;
+		for(var factor of distinct(factors(n))){
+			if(factor > limit){
+				break;
+			}
+			foundFactor = true;
+			result -= properFractionsLimited(n / factor, highestFactor);
+			highestFactor = factor;
+		}
+		return result - 1;
+	};
 	var properFractions = function(n){
-		// var foundFactors = [], result = n;
-		// for(var factor of distinct(factors(n))){
-		// 	var toSubtract = ;
-
-		// 	foundFactors.push(factor);
-		// 	result -= toSubtract;
-		// }
-		// return result;
+		return properFractionsLimited(n, n);
 	};
 	Test.assertEquals(properFractions(1),0);
 	Test.assertEquals(properFractions(2),1);

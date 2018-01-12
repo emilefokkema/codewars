@@ -126,20 +126,16 @@
 		}
 	};
 	
-	var properFractionsLimited = function(n, limit){
-		var highestFactor = 0, result = n, foundFactor = false;
-		for(var factor of distinct(factors(n))){
-			if(factor > limit){
-				break;
-			}
-			foundFactor = true;
-			result -= properFractionsLimited(n / factor, highestFactor);
-			highestFactor = factor;
+	var properFractionsUsingFactors = function(n, factors){
+		var factorsSoFar = [], result = n;
+		for(var i=0;i<factors.length;i++){
+			result -= properFractionsUsingFactors(n / factors[i], factorsSoFar);
+			factorsSoFar.push(factors[i]);
 		}
 		return result - 1;
 	};
 	var properFractions = function(n){
-		return properFractionsLimited(n, n);
+		return properFractionsUsingFactors(n, [...distinct(factors(n))]);
 	};
 	Test.assertEquals(properFractions(1),0);
 	Test.assertEquals(properFractions(2),1);

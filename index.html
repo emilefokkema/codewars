@@ -143,6 +143,24 @@
 	Test.assertEquals(properFractions(15),8);
 	Test.assertEquals(properFractions(25),20);
 	Test.assertEquals(properFractions(30),8);
+
+	//---------- https://www.codewars.com/kata/count-ones-in-a-segment ---------------
+	function countUpTo(n){
+	if(n <= 1){
+	    return  n;
+	  }
+	  var max = 1 << Math.floor(Math.log(n) / Math.log(2));
+	  
+	  return countUpTo(max - 1) + (n - max + 1) + countUpTo(n - max);
+	}
+
+	function countOnes(left, right) {
+	  return countUpTo(right) - countUpTo(left - 1);
+	}
+	
+	Test.assertEquals(countOnes(556385, 684810), 1248133);
+	Test.assertEquals(countOnes(191694, 744854), 5473782);
+
 })();
 </script>
 </body>

@@ -31,10 +31,27 @@
 				}
 			}
 		}
-		
+	};
+	var expect = function(bool, msg){
+		if(!bool){
+			throw msg;
+		}
+	};
+	var describe = function(title, describeFn){
+		describeFn();
+	};
+	var before = function(beforeFn){
+		beforeFn();
+	};
+	var it = function(title, itFn){
+		itFn();
 	};
 	window.Test = {
 		assertEquals: assertEquals,
-		assertDeepEquals: assertDeepEquals
+		assertDeepEquals: assertDeepEquals,
+		expect: expect,
+		describe:describe,
+		before:before,
+		it:it
 	};
 })();

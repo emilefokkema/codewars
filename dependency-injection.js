@@ -10,7 +10,11 @@
 
 	// Should return new function with resolved dependencies
 	DI.prototype.inject = function (func) {
-	  // Your code goes here
+	  var argumentNames = func.toString().match(/^[^(]+\(([^)]+)\)/)[1].match(/\w+/g);
+	  var dep = this.dependency;
+	  return function(){
+	  	return func.apply(null, argumentNames.map(function(n){return dep[n];}))
+	  };
 	}
 
 	var deps = {

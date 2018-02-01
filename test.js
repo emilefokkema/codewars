@@ -13,28 +13,45 @@
 				msg = msg || "expected "+o1+" to equal "+o2;
 				onFail(msg);
 			}
-		}
-		if(typeof o1 !== "object"){
+		}else if(typeof o1 !== "object"){
 			onFail("expected "+o1+" to deep equal "+JSON.stringify(o2));
-		}
-		if(typeof o2 !== "object"){
+		}else if(typeof o2 !== "object"){
 			onFail("expected "+o2+" to deep equal "+JSON.stringify(o1));
-		}
-		var p;
-		msg = msg || "expected "+JSON.stringify(o1)+" to deep equal "+JSON.stringify(o2);
-		for(p in o1){
-			if(o1.hasOwnProperty(p)){
-				assertDeepEquals(o1[p], o2[p], msg, onFail);
+		}else{
+			var p;
+			msg = msg || "expected "+JSON.stringify(o1)+" to deep equal "+JSON.stringify(o2);
+			for(p in o1){
+				if(o1.hasOwnProperty(p)){
+					assertDeepEquals(o1[p], o2[p], msg, onFail);
+				}
 			}
-		}
-		for(p in o2){
-			if(o2.hasOwnProperty(p)){
-				assertDeepEquals(o2[p], o1[p], msg, onFail);
+			for(p in o2){
+				if(o2.hasOwnProperty(p)){
+					assertDeepEquals(o2[p], o1[p], msg, onFail);
+				}
 			}
 		}
 	};
+	var expect = function(bool, msg){
+		if(!bool){
+			throw msg;
+		}
+	};
+	var describe = function(title, describeFn){
+		describeFn();
+	};
+	var before = function(beforeFn){
+		beforeFn();
+	};
+	var it = function(title, itFn){
+		itFn();
+	};
 	window.Test = {
 		assertEquals: assertEquals,
-		assertDeepEquals: assertDeepEquals
+		assertDeepEquals: assertDeepEquals,
+		expect: expect,
+		describe:describe,
+		before:before,
+		it:it
 	};
 })();

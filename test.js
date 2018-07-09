@@ -1,7 +1,7 @@
 (function(){
-	var assertEquals = function(v1, v2){
+	var assertEquals = function(v1, v2, msg){
 		if(v1 != v2){
-			throw 'expected ' + v1 + ' to equal '+v2;
+			console.error( msg || ('expected ' + v1 + ' to equal '+v2));
 		}
 	};
 	var assertDeepEquals = function(o1, o2, msg, onFail){

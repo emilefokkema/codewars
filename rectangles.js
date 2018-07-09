@@ -9,7 +9,11 @@
 	Side.prototype.intersect = function(other){
 		
 	};
-	function Rectangle(x0, y0, x1, y1){
+	function Rectangle(arr){
+		var x0 = arr[0], 
+			y0 = arr[1], 
+			x1 = arr[2], 
+			y1 = arr[3]
 		this.horizontal = new Side(x0, x1);
 		this.vertical = new Side(y0, y1);
 	}
@@ -17,7 +21,14 @@
 		return this.horizontal.size() * this.vertical.size();
 	};
 	function calculate(recs){
-
+		var currentRecs = [];
+		for(var i=0;i<recs.length;i++){
+			var rec = new Rectangle(recs[i]);
+			if(currentRecs.some(r => r.contains(rec))){
+				break;
+			}
+			currentRecs.push(rec);
+		}
 	}
 	Test.describe("basic cases", function() {
 	  Test.it("0 rectangles", function() {

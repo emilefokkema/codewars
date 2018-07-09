@@ -6,9 +6,13 @@
 	Side.prototype.size = function(){
 		return this.max - this.min;
 	};
-	Side.prototype.intersect = function(other){
-		
+	Side.prototype.intersects = function(other){
+		return this.max > other.min && this.min < other.max;
 	};
+	Side.prototype.contains = function(other){
+		return this.min <= other.min && this.max >= other.max;
+	};
+
 	function Rectangle(arr){
 		var x0 = arr[0], 
 			y0 = arr[1], 
@@ -20,15 +24,28 @@
 	Rectangle.prototype.area = function(){
 		return this.horizontal.size() * this.vertical.size();
 	};
-	function calculate(recs){
-		var currentRecs = [];
-		for(var i=0;i<recs.length;i++){
-			var rec = new Rectangle(recs[i]);
-			if(currentRecs.some(r => r.contains(rec))){
-				break;
-			}
-			currentRecs.push(rec);
+	Rectangle.prototype.intersects = function(other){
+		return this.vertical.intersects(other.vertical) && this.horizontal.intersects(other.horizontal);
+	};
+	Rectangle.prototype.contains = function(other){
+		return this.vertical.contains(other.vertical) && this.horizontal.contains(other.horizontal);
+	};
+
+	var RectangleSet = function(){
+		this.recs = [];
+	};
+	RectangleSet.prototype.add = function(rec){
+		if(!this.recs.some(r => r.contains(rec))){
+			this.recs = this.recs.filter(r => !rec.contains(r)).concat([rec]);
 		}
+		return this;
+	};
+	RectangleSet.prototype.area = function(){
+		return this.recs.reduce((a,b) => a + b.area(), 0);
+	};
+
+	function calculate(recs){
+		return recs.reduce((a,b) => a.add(new Rectangle(b)), new RectangleSet()).area();
 	}
 	Test.describe("basic cases", function() {
 	  Test.it("0 rectangles", function() {

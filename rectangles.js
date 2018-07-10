@@ -13,8 +13,22 @@
 		return this.min <= other.min && this.max >= other.max;
 	};
 	Side.prototype.split = function(other){
-		if(!this.intersects(other) || this.contains(other) || other.contains(this)){
+		if(!this.intersects(other)){
 			throw 'no';
+		}
+		if(other.contains(this)){
+			return [this];
+		}
+		if(this.contains(other)){
+			var boundaries = [this.min, other.min, other.max, this.max];
+			var result = [];
+			for(var i=1;i<4;i++){
+				var from = boundaries[i-1], to = boundaries[i];
+				if(from < to){
+					result.push(new Side(from, to));
+				}
+			}
+			return result;
 		}
 		if(this.min < other.min){
 			return [new Side(this.min, other.min), new Side(other.min, this.max)];
@@ -53,18 +67,21 @@
 		if(!this.intersects(other) || this.contains(other) || other.contains(this)){
 			throw 'no';
 		}
+		var result = [];
 		var horizontals = this.horizontal.split(other.horizontal);
 		var verticals = this.vertical.split(other.vertical);
-		var rects = [
-			new Rectangle(horizontals[0], verticals[0]),
-			new Rectangle(horizontals[0], verticals[1]),
-			new Rectangle(horizontals[1], verticals[0]),
-			new Rectangle(horizontals[1], verticals[1])
-		];
-		return rects.filter(r => !other.contains(r));
+		for(var i=0;i<horizontals.length;i++){
+			for(var j=0;j<verticals.length;j++){
+				var rect = new Rectangle(horizontals[i], verticals[j]);
+				
+				result.push(rect);
+				
+			}
+		}
+		return result;
 	};
 	console.log(new Rectangle([0,0,2,2]).split(new Rectangle([1,1,3,3])).map(r => r.toString()));
-
+	console.log(new Rectangle([0,0,3,3]).split(new Rectangle([2,1,4,2])).map(r => r.toString()));
 	var RectangleSet = function(){
 		this.recs = [];
 	};
@@ -75,8 +92,23 @@
 		return this;
 	};
 	RectangleSet.prototype.area = function(){
-		return this.recs.reduce((a,b) => a + b.area(), 0);
+		return this.recs.reduce((a,b) => a.addRectangle(b), new AreaAdder()).currentArea;
 	};
+
+	function AreaAdder(){
+		this.currentArea = 0;
+		this.currentRectangles = [];
+	}
+	AreaAdder.prototype.getRectanglesToAdd = function(candidate, existingRectangle){
+
+	};
+	AreaAdder.prototype.addRectangle = function(rect){
+		var intersectingRectangles = this.currentRectangles.filter(r => r.intersects(rect));
+		
+		return this;
+	};
+
+
 
 	function calculate(recs){
 		return recs.reduce((a,b) => a.add(new Rectangle(b)), new RectangleSet()).area();

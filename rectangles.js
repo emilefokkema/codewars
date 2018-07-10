@@ -12,14 +12,32 @@
 	Side.prototype.contains = function(other){
 		return this.min <= other.min && this.max >= other.max;
 	};
+	Side.prototype.split = function(other){
+		if(!this.intersects(other) || this.contains(other) || other.contains(this)){
+			throw 'no';
+		}
+		if(this.min < other.min){
+			return [new Side(this.min, other.min), new Side(other.min, this.max)];
+		}
+		return [new Side(this.min, other.max), new Side(other.max, this.max)];
+	};
+	Side.prototype.toString = function(){
+		return "["+this.min+","+this.max+"]";
+	};
+
 
 	function Rectangle(arr){
-		var x0 = arr[0], 
-			y0 = arr[1], 
-			x1 = arr[2], 
-			y1 = arr[3]
-		this.horizontal = new Side(x0, x1);
-		this.vertical = new Side(y0, y1);
+		if(arguments.length == 2){
+			this.horizontal = arguments[0];
+			this.vertical = arguments[1];
+		}else{
+			var x0 = arr[0], 
+				y0 = arr[1], 
+				x1 = arr[2], 
+				y1 = arr[3];
+			Rectangle.apply(this, [new Side(x0, x1), new Side(y0, y1)]);
+		}
+		
 	}
 	Rectangle.prototype.area = function(){
 		return this.horizontal.size() * this.vertical.size();
@@ -30,6 +48,22 @@
 	Rectangle.prototype.contains = function(other){
 		return this.vertical.contains(other.vertical) && this.horizontal.contains(other.horizontal);
 	};
+	Rectangle.prototype.toString = function(){return this.horizontal.toString() + "x" + this.vertical.toString();};
+	Rectangle.prototype.split = function(other){
+		if(!this.intersects(other) || this.contains(other) || other.contains(this)){
+			throw 'no';
+		}
+		var horizontals = this.horizontal.split(other.horizontal);
+		var verticals = this.vertical.split(other.vertical);
+		var rects = [
+			new Rectangle(horizontals[0], verticals[0]),
+			new Rectangle(horizontals[0], verticals[1]),
+			new Rectangle(horizontals[1], verticals[0]),
+			new Rectangle(horizontals[1], verticals[1])
+		];
+		return rects.filter(r => !other.contains(r));
+	};
+	console.log(new Rectangle([0,0,2,2]).split(new Rectangle([1,1,3,3])).map(r => r.toString()));
 
 	var RectangleSet = function(){
 		this.recs = [];

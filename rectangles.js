@@ -104,7 +104,15 @@
 	};
 	AreaAdder.prototype.addRectangle = function(rect){
 		var intersectingRectangles = this.currentRectangles.filter(r => r.intersects(rect));
-		
+		var rectanglesToAdd = [rect];
+		for(var intersectingRectangle of intersectingRectangles){
+			rectanglesToAdd = rectanglesToAdd
+				.filter(r => !intersectingRectangle.contains(r))
+				.map(r => r.split(intersectingRectangle).filter(rr => !intersectingRectangle.contains(rr)))
+				.reduce((a,b) => b.reduce((c,d) => {c.push(d);return c;}, a), []);
+		}
+		this.currentRectangles.push(rect);
+		this.currentArea += rectanglesToAdd.reduce((a,b) => a + b.area(), 0);
 		return this;
 	};
 

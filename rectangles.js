@@ -64,25 +64,6 @@
 	Rectangle.prototype.toString = function(){return this.horizontal.toString() + "x" + this.vertical.toString();};
 	
 
-	var RectangleSet = function(){
-		this.recs = [];
-	};
-	RectangleSet.prototype.add = function(rec){
-		if(!this.recs.some(r => r.contains(rec))){
-			var newRecs = [rec];
-			for(var thisRec of this.recs){
-				if(!rec.contains(thisRec)){
-					newRecs.push(thisRec);
-				}
-			}
-			this.recs = newRecs;
-		}
-		return this;
-	};
-	RectangleSet.prototype.area = function(){
-		return this.recs.reduce((a,b) => a.addRectangle(b), new AreaAdder()).currentArea;
-	};
-
 	function AreaAdder(){
 		this.currentArea = 0;
 		this.currentRectangles = [];
@@ -90,11 +71,18 @@
 	AreaAdder.prototype.addRectangle = function(rect){
 		var intersections = [];
 		for(var currentRectangle of this.currentRectangles){
+			if(currentRectangle.contains(rect)){
+				return this;
+			}
+			if(rect.contains(currentRectangle)){
+				intersections.push(currentRectangle);
+				continue;
+			}
 			if(currentRectangle.intersects(rect)){
 				intersections.push(rect.intersect(currentRectangle))
 			}
 		}
-		this.currentArea += rect.area() - intersections.reduce((a,b) => a.add(b), new RectangleSet()).area();
+		this.currentArea += rect.area() - intersections.reduce((a,b) => a.addRectangle(b), new AreaAdder()).currentArea;
 		this.currentRectangles.push(rect);
 		return this;
 	};
@@ -102,7 +90,7 @@
 
 
 	function calculate(recs){
-		return recs.reduce((a,b) => a.add(new Rectangle(b)), new RectangleSet()).area();
+		return recs.reduce((a,b) => a.addRectangle(new Rectangle(b)), new AreaAdder()).currentArea;
 	}
 	Test.describe("basic cases", function() {
 	  Test.it("0 rectangles", function() {

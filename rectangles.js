@@ -9,32 +9,22 @@
 	Side.prototype.intersects = function(other){
 		return this.max > other.min && this.min < other.max;
 	};
+	Side.prototype.intersect = function(other){
+		if(this.contains(other)){
+			return other;
+		}
+		if(other.contains(this)){
+			return this;
+		}
+		if(other.min < this.min){
+			return new Side(this.min, other.max);
+		}
+		return new Side(other.min, this.max);
+	};
 	Side.prototype.contains = function(other){
 		return this.min <= other.min && this.max >= other.max;
 	};
-	Side.prototype.split = function(other){
-		if(!this.intersects(other)){
-			throw 'no';
-		}
-		if(other.contains(this)){
-			return [this];
-		}
-		if(this.contains(other)){
-			var boundaries = [this.min, other.min, other.max, this.max];
-			var result = [];
-			for(var i=1;i<4;i++){
-				var from = boundaries[i-1], to = boundaries[i];
-				if(from < to){
-					result.push(new Side(from, to));
-				}
-			}
-			return result;
-		}
-		if(this.min < other.min){
-			return [new Side(this.min, other.min), new Side(other.min, this.max)];
-		}
-		return [new Side(this.min, other.max), new Side(other.max, this.max)];
-	};
+	
 	Side.prototype.toString = function(){
 		return "["+this.min+","+this.max+"]";
 	};
@@ -59,29 +49,21 @@
 	Rectangle.prototype.intersects = function(other){
 		return this.vertical.intersects(other.vertical) && this.horizontal.intersects(other.horizontal);
 	};
+	Rectangle.prototype.intersect = function(other){
+		if(this.contains(other)){
+			return other;
+		}
+		if(other.contains(this)){
+			return this;
+		}
+		return new Rectangle(this.horizontal.intersect(other.horizontal), this.vertical.intersect(other.vertical));
+	};
 	Rectangle.prototype.contains = function(other){
 		return this.vertical.contains(other.vertical) && this.horizontal.contains(other.horizontal);
 	};
 	Rectangle.prototype.toString = function(){return this.horizontal.toString() + "x" + this.vertical.toString();};
-	Rectangle.prototype.split = function(other){
-		if(!this.intersects(other) || this.contains(other) || other.contains(this)){
-			throw 'no';
-		}
-		var result = [];
-		var horizontals = this.horizontal.split(other.horizontal);
-		var verticals = this.vertical.split(other.vertical);
-		for(var i=0;i<horizontals.length;i++){
-			for(var j=0;j<verticals.length;j++){
-				var rect = new Rectangle(horizontals[i], verticals[j]);
-				
-				result.push(rect);
-				
-			}
-		}
-		return result;
-	};
-	console.log(new Rectangle([0,0,2,2]).split(new Rectangle([1,1,3,3])).map(r => r.toString()));
-	console.log(new Rectangle([0,0,3,3]).split(new Rectangle([2,1,4,2])).map(r => r.toString()));
+	
+
 	var RectangleSet = function(){
 		this.recs = [];
 	};
@@ -99,20 +81,15 @@
 		this.currentArea = 0;
 		this.currentRectangles = [];
 	}
-	AreaAdder.prototype.getRectanglesToAdd = function(candidate, existingRectangle){
-
-	};
 	AreaAdder.prototype.addRectangle = function(rect){
-		var intersectingRectangles = this.currentRectangles.filter(r => r.intersects(rect));
-		var rectanglesToAdd = [rect];
-		for(var intersectingRectangle of intersectingRectangles){
-			rectanglesToAdd = rectanglesToAdd
-				.filter(r => !intersectingRectangle.contains(r))
-				.map(r => r.split(intersectingRectangle).filter(rr => !intersectingRectangle.contains(rr)))
-				.reduce((a,b) => b.reduce((c,d) => {c.push(d);return c;}, a), []);
+		var intersections = [];
+		for(var currentRectangle of this.currentRectangles){
+			if(currentRectangle.intersects(rect)){
+				intersections.push(rect.intersect(currentRectangle))
+			}
 		}
+		this.currentArea += rect.area() - intersections.reduce((a,b) => a.add(b), new RectangleSet()).area();
 		this.currentRectangles.push(rect);
-		this.currentArea += rectanglesToAdd.reduce((a,b) => a + b.area(), 0);
 		return this;
 	};
 

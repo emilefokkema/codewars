@@ -69,7 +69,13 @@
 	};
 	RectangleSet.prototype.add = function(rec){
 		if(!this.recs.some(r => r.contains(rec))){
-			this.recs = this.recs.filter(r => !rec.contains(r)).concat([rec]);
+			var newRecs = [rec];
+			for(var thisRec of this.recs){
+				if(!rec.contains(thisRec)){
+					newRecs.push(thisRec);
+				}
+			}
+			this.recs = newRecs;
 		}
 		return this;
 	};

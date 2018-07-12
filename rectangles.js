@@ -69,20 +69,20 @@
 		this.currentRectangles = [];
 	}
 	AreaAdder.prototype.addRectangle = function(rect){
-		var intersections = [];
+		var intersectionArea = new AreaAdder();
 		for(var currentRectangle of this.currentRectangles){
 			if(currentRectangle.contains(rect)){
 				return this;
 			}
 			if(rect.contains(currentRectangle)){
-				intersections.push(currentRectangle);
+				intersectionArea.addRectangle(currentRectangle);
 				continue;
 			}
 			if(currentRectangle.intersects(rect)){
-				intersections.push(rect.intersect(currentRectangle))
+				intersectionArea.addRectangle(rect.intersect(currentRectangle));
 			}
 		}
-		this.currentArea += rect.area() - intersections.reduce((a,b) => a.addRectangle(b), new AreaAdder()).currentArea;
+		this.currentArea += rect.area() - intersectionArea.currentArea;
 		this.currentRectangles.push(rect);
 		return this;
 	};

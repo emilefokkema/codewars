@@ -24,10 +24,6 @@
 	Side.prototype.contains = function(other){
 		return this.min <= other.min && this.max >= other.max;
 	};
-	
-	Side.prototype.toString = function(){
-		return "["+this.min+","+this.max+"]";
-	};
 
 
 	function Rectangle(arr){
@@ -61,7 +57,6 @@
 	Rectangle.prototype.contains = function(other){
 		return this.vertical.contains(other.vertical) && this.horizontal.contains(other.horizontal);
 	};
-	Rectangle.prototype.toString = function(){return this.horizontal.toString() + "x" + this.vertical.toString();};
 	
 
 	function AreaAdder(){
@@ -70,20 +65,23 @@
 	}
 	AreaAdder.prototype.addRectangle = function(rect){
 		var intersectionArea = new AreaAdder();
-		for(var currentRectangle of this.currentRectangles){
+		var newCurrentRectangles = [rect];
+		for(var i=0;i<this.currentRectangles.length;i++){
+			var currentRectangle = this.currentRectangles[i];
 			if(currentRectangle.contains(rect)){
 				return this;
 			}
 			if(rect.contains(currentRectangle)){
 				intersectionArea.addRectangle(currentRectangle);
-				continue;
-			}
-			if(currentRectangle.intersects(rect)){
-				intersectionArea.addRectangle(rect.intersect(currentRectangle));
+			}else{
+				if(currentRectangle.intersects(rect)){
+					intersectionArea.addRectangle(rect.intersect(currentRectangle));
+				}
+				newCurrentRectangles.push(currentRectangle);
 			}
 		}
 		this.currentArea += rect.area() - intersectionArea.currentArea;
-		this.currentRectangles.push(rect);
+		this.currentRectangles = newCurrentRectangles;
 		return this;
 	};
 

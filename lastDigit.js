@@ -61,7 +61,7 @@
 		if(!this.exponent){
 			return this.base >= n;
 		}
-		
+		return this.exponent.atLeast(Math.log(n) / Math.log(this.base));
 	}
 
 	function lastDigit(as){

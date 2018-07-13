@@ -40,7 +40,11 @@
 		if(t.isRoot && this.exponent.atLeast(t.degree)){
 			return 0;
 		}
-		return Math.pow(result, this.exponent.mod(t.degree)) % n;
+		var exponentMod = this.exponent.mod(t.degree);
+		if(exponentMod == 0 && this.base > n){
+			exponentMod = t.degree;
+		}
+		return Math.pow(result, exponentMod) % n;
 	};
 	CompoundPower.prototype.atLeast = function(n){
 		if(this.base == 0){
@@ -48,10 +52,16 @@
 				return n == 0;
 			}
 			if(!this.exponent.atLeast(1)){
-				return 1;
+				return n <= 1;
 			}
 		}
-		return this.base >= n;
+		if(this.base == 1){
+			return n <= 1;
+		}
+		if(!this.exponent){
+			return this.base >= n;
+		}
+		
 	}
 
 	function lastDigit(as){
@@ -59,6 +69,7 @@
 		return compound.mod(10);
 		
 	}
+	Test.assertEquals(new CompoundPower([2,2,0]).mod(4), 2, "fdafa")
 
 	Test.assertEquals(lastDigit([]         ), 1, "case 1");
 	Test.assertEquals(lastDigit([0,0]      ), 1, "case 2"); // 0 ^ 0

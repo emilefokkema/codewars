@@ -22,7 +22,36 @@
 
 
 	function CompoundPower(as){
-		
+		if(as.length == 0){
+			this.base = 1;
+		}else{
+			this.base = as[0];
+		}
+		if(as.length > 1){
+			this.exponent = new CompoundPower(as.slice(1));
+		}
+	}
+	CompoundPower.prototype.mod = function(n){
+		var result = this.base % n;
+		if(!this.exponent){
+			return result;
+		}
+		var t = new Trajectory(result, n);
+		if(t.isRoot && this.exponent.atLeast(t.degree)){
+			return 0;
+		}
+		return Math.pow(result, this.exponent.mod(t.degree)) % n;
+	};
+	CompoundPower.prototype.atLeast = function(n){
+		if(this.base == 0){
+			if(!this.exponent){
+				return n == 0;
+			}
+			if(!this.exponent.atLeast(1)){
+				return 1;
+			}
+		}
+		return this.base >= n;
 	}
 
 	function lastDigit(as){

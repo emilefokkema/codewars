@@ -47,8 +47,31 @@
 			this[1] = two;
 			this.freq = one.freq + two.freq;
 		}
-		
 	}
+	FreqNode.prototype.getEncoding = function(){
+		if(this[0]){
+			var result = this.prefaceValues(this[0].getEncoding(), "0");
+			var other = this.prefaceValues(this[1].getEncoding(), "1");
+			for(var p in other){
+				if(other.hasOwnProperty(p)){
+					result[p] = other[p];
+				}
+			}
+			return result;
+		}
+		var result = {};
+		result[this.character] = "";
+		return result;
+	};
+	FreqNode.prototype.prefaceValues = function(obj, s){
+		var result = {};
+		for(var p in obj){
+			if(obj.hasOwnProperty(p)){
+				result[p] = s + obj[p];
+			}
+		}
+		return result;
+	};
 
 	function makeTree(freqs){
 		var nodes = freqs.map(f => new FreqNode(f[0],f[1]));
@@ -62,7 +85,9 @@
 		}
 		return nodes[0];
 	}
-	console.log(makeTree([ ["a",16], ["b",15], ["c",14], ["d",13], ["e",12] ]));
+	var t = makeTree([ ["a",16], ["b",15], ["c",14], ["d",13], ["e",12] ]);
+	console.log(t);
+	console.log(t.getEncoding());
 	
 	// takes: String; returns: [ [String,Int] ] (Strings in return value are single characters)
 	function frequencies(s) {

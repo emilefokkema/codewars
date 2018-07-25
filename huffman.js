@@ -36,6 +36,57 @@
 		return [index1,index2];
 	}
 
+	function FreqNodeEncoding(freqNode){
+		if(freqNode.character !== undefined){
+			this[freqNode.character] = "";
+		}else{
+			this.addEncoding(new FreqNodeEncoding(freqNode[0]), "0");
+			this.addEncoding(new FreqNodeEncoding(freqNode[1]), "1");
+		}
+	}
+	FreqNodeEncoding.prototype.addEncoding = function(enc, prefix){
+		for(var p in enc){
+			if(enc.hasOwnProperty(p)){
+				this[p] = prefix + enc[p];
+			}
+		}
+	};
+	FreqNodeEncoding.prototype.encode = function(string){
+		var result = "";
+		for(var s of string){
+			result += this[s];
+		}
+		return result;
+	};
+	FreqNodeEncoding.prototype.getReverse = function(){
+		var result = {};
+		for(var p in this){
+			if(this.hasOwnProperty(p)){
+				result[this[p]] = p;
+			}
+		}
+		return result;
+	};
+	FreqNodeEncoding.prototype.decode = function(string){
+		var result = "";
+		var reverse = this.getReverse();
+		var rgx = this.getRegex();
+		var match;
+		while(match = rgx.exec(string)){
+			result += reverse[match[0]];
+		}
+		return result;
+	};
+	FreqNodeEncoding.prototype.getRegex = function(){
+		var parts = [];
+		for(var p in this){
+			if(this.hasOwnProperty(p)){
+				parts.push(this[p]);
+			}
+		}
+		return new RegExp(parts.join("|"),"g");
+	};
+
 	function FreqNode(){
 		if(!(arguments[0] instanceof FreqNode)){
 			this.character = arguments[0];
@@ -48,30 +99,6 @@
 			this.freq = one.freq + two.freq;
 		}
 	}
-	FreqNode.prototype.getEncoding = function(){
-		if(this[0]){
-			var result = this.prefaceValues(this[0].getEncoding(), "0");
-			var other = this.prefaceValues(this[1].getEncoding(), "1");
-			for(var p in other){
-				if(other.hasOwnProperty(p)){
-					result[p] = other[p];
-				}
-			}
-			return result;
-		}
-		var result = {};
-		result[this.character] = "";
-		return result;
-	};
-	FreqNode.prototype.prefaceValues = function(obj, s){
-		var result = {};
-		for(var p in obj){
-			if(obj.hasOwnProperty(p)){
-				result[p] = s + obj[p];
-			}
-		}
-		return result;
-	};
 
 	function makeTree(freqs){
 		var nodes = freqs.map(f => new FreqNode(f[0],f[1]));
@@ -85,9 +112,6 @@
 		}
 		return nodes[0];
 	}
-	var t = makeTree([ ["a",16], ["b",15], ["c",14], ["d",13], ["e",12] ]);
-	console.log(t);
-	console.log(t.getEncoding());
 	
 	// takes: String; returns: [ [String,Int] ] (Strings in return value are single characters)
 	function frequencies(s) {
@@ -108,12 +132,23 @@
 
 	// takes: [ [String,Int] ], String; returns: String (with "0" and "1")
 	function encode(freqs,s) {
+		if(freqs.length < 2){
+			return null;
+		}
+		var tree = makeTree(freqs);
+		var encoding = new FreqNodeEncoding(tree);
+		return encoding.encode(s);
 	  
 	}
 
 	// takes [ [String, Int] ], String (with "0" and "1"); returns: String
 	function decode(freqs,bits) {
-	  
+	  if(freqs.length < 2){
+	  	return null;
+	  }
+	  var tree = makeTree(freqs);
+	  var encoding = new FreqNodeEncoding(tree);
+	  return encoding.decode(bits);
 	}
 
 	Test.describe("example tests", ()=>{
